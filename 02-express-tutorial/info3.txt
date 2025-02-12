@@ -1,0 +1,206 @@
+http methods
+get, put , post, delete,
+we have not learnt how to connect to the DB, hence we won't 
+persist the data
+
+post:
+
+first one is traditional form method and
+the other is installing  a tool(postman).
+
+
+In HTML, a <form> element is used to collect user input 
+and submit it to a server for processing. It serves as a 
+container for input fields, buttons, and other
+ interactive elements. Forms are commonly used for login 
+ pages, contact forms, search bars, and more.
+
+ <form action="/login" method="POST">
+action="/login" – Specifies the URL where the form data 
+will be sent upon submission.
+
+method="POST" – Defines the HTTP method used for 
+submission (commonly POST or GET).
+
+<input type="text" name="name" id="name" autocomplete="false" />
+Allows users to enter their name.
+The name="name" attribute is used to identify the input 
+when submitted.
+
+<button type="submit" class="block">submit</button>
+Sends the form data to the server when clicked.
+
+
+-------------
+
+Without express.urlencoded(), Express does not parse 
+application/x-www-form-urlencoded data
+ (which is the default format when submitting an HTML form).
+
+
+ -----------
+
+
+ const express = require('express')
+const app = express()
+
+let {people} = require('./data')
+
+app.use(express.static('./methods-public'))
+
+app.use(express.urlencoded({extended: false}))
+//it parses incoming requests with unrlencoded payloads and
+//  is based on body-parser.
+
+app.get('/api/people',(req,res)=>{
+    res.status(200).json({success:true,data:people})
+})
+
+app.post('/login',(req,res)=>{
+    const {name} = req.body
+    if(name) {
+        console.log(req.body);
+        return res.status(200).send(`Welcome ${name}`)   
+    }
+    
+    res.status(401).send('Please provide creds')
+})
+
+
+app.listen(2006,()=>{
+    console.log("Server is listening on your bday port")
+})
+
+-----------------
+
+app.use(express.static('./methods-public'))
+app.use(express.json())
+//Parses incoming JSON requests (e.g., Content-Type: application/json).
+//Without this, req.body would be undefined for JSON payloads.
+app.use(express.urlencoded({ extended: false }))
+
+
+const express = require('express')
+const app = express()
+
+let {people} = require('./data')
+
+app.use(express.static('./methods-public'))
+app.use(express.json())
+app.use(express.urlencoded({extended: false}))
+
+
+app.get('/api/people',(req,res)=>{
+    res.status(200).json({success:true,data:people})
+})
+
+app.post('/api/people',(req,res)=>{
+    const {name} = req.body
+    if(!name){
+        return res.json({success:false,msg:'please provide name value'})
+    }
+    res.status(201).json({success:true,data:people})
+})
+
+
+app.post('/login',(req,res)=>{
+    const {name} = req.body
+    if(name) {
+        console.log(req.body);
+        return res.status(200).send(`Welcome ${name}`)   
+    }
+    
+    res.status(401).send('Please provide creds')
+})
+
+
+app.listen(2006,()=>{
+    console.log("Server is listening on your bday port")
+})
+
+
+------------
+
+If you submit the form from the browser, the data is 
+sent as URL-encoded format (application/x-www-form-urlencoded).
+
+If you send a request from Postman, 
+you can send data in different formats, including JSON.
+
+
+hence the line app.use(express.json()) is important
+
+
+-----------
+
+
+app.get('/api/people',(req,res)=>{
+    res.status(200).json({success:true,data:people})
+})
+
+app.post('/api/people',(req,res)=>{
+    const {name} = req.body
+    if(!name){
+        return res.json({success:false,msg:'please provide name value'})
+    }
+    res.status(201).json({success:true,person:name})
+})
+
+app.post('/api/postman/people',(req,res)=>{
+    const {name} = req.body
+    if(!name){
+        return res.json({success:false,msg:'please provide name value'})
+    }
+    res.status(201).json({success:true,data: [...people,name]})
+})
+app.post('/login',(req,res)=>{
+    const {name} = req.body
+    if(name) {
+        console.log(req.body);
+        return res.status(200).send(`Welcome ${name}`)   
+    }
+    
+    res.status(401).send('Please provide creds')
+}) 
+
+----------
+
+put for editing /updating the data 
+-----------
+//That's a great observation!
+//  You're right that the actual data modifications
+//  (adding, updating, and deleting) are happening due
+//  to JavaScript array methods like .map(), .filter(), and 
+// .find(). 
+// However, HTTP methods (GET, POST, PUT, DELETE) still serve an
+//  important role in REST API design.
+
+
+
+
+------------
+
+check the routes folder and here is the app.js for the routes
+folder:
+also this also covers the controllers : I have only done for auth.js(login waala)
+const express = require('express')
+const app = express()
+const people = require('./routes/people')
+const auth = require('./routes/auth')
+
+
+app.use(express.static('./methods-public'))
+app.use(express.json())
+app.use(express.urlencoded({extended: false}))
+app.use('/api/people',people)
+app.use('/login',auth)
+// api/people is the base path
+//for all routes inside people.js and people is the imported router
+//from ./routes/people which contains route handlers
+//so necessary changes also need to be made in the people.js
+//ex: changing /api/people to /(think u will remember)
+
+app.listen(2006,()=>{
+    console.log("Server is listening on your bday port")
+})
+

@@ -1,0 +1,502 @@
+Express JS
+
+currently Express JS is a standard when
+building web applications with node JS
+
+npm install express --save
+
+for installing a specific version:
+npm install express@version --save
+
+---------
+
+
+//method 1
+const express = require('express')
+const app = express()
+
+//method 2
+const app = require('express')()
+
+
+---------
+
+// app.get     get - read data
+// app.post    post - insert data
+// app.put     put - update data
+// app.delete  delete - delete data
+// app.use
+// app.all
+// app.listen
+
+
+app.get('/',(req,res)=>{
+    res.send('Home Page is live') //same as res.end in http module
+                          //but it is a higher-level function
+})
+
+
+app.listen(5000,()=>{
+    console.log("Server is listening on port 5000");
+    
+})
+
+----------
+
+const express = require('express')
+const app = express()
+
+app.get('/',(req,res)=>{
+    res.status(200).send('Home Page is live') //same as res.end in http module
+                          //but it is a higher-level function
+})
+//we are also adding .status so that we can set the status
+//code as we want
+
+app.get('/about',(req,res)=>{
+    res.status(200).send("About Page")
+    console.log("This is the about page");
+})
+
+
+app.all('*',(req,res)=>{
+    res.status(404).send("<h1>Resource Not found</h1>")
+})
+//here .all is used to match all HTTP methods for a specific
+route(here the specific route is *)
+
+app.listen(5000,()=>{
+    console.log("Server is listening on port 5000");
+    
+})
+
+
+And another thing that u need to keep in mind is the
+304 Not Modified status.
+
+why does this happen??
+Possible Reasons for 304 Not Modified:
+
+1.  Client-Side Caching:
+
+The browser is sending an If-Modified-Since or
+ If-None-Match header in the request.
+The server sees that the resource hasn't 
+changed and responds with 304 Not Modified
+ instead of 200 OK.
+
+
+2.   Middleware or Proxy Interference:
+
+If you have a proxy or middleware handling requests before
+ your Express app, it might be modifying the response.
+
+3.  No Explicit Cache-Control Headers:
+
+Express may automatically handle conditional 
+requests based on caching headers.
+
+
+
+
+
+Hence u can see how express is better than using the
+basic http module.
+
+
+
+_______________
+
+app.use(express.static('./public'))
+//remember to put all the static files in the public directory
+// The express.static() middleware is used to serve static
+ files (HTML, CSS, JavaScript, images, etc.)
+  from a specified folder.
+
+✅ Express will automatically serve files from the public directory.
+✅ You do not need to create specific routes for each static file.
+✅ If a request matches a file in the public folder, Express will serve it directly.
+
+app.get('/',(req,res)=>{
+    const path_is = path.resolve(__dirname,'./navbar-app/index.html')
+    console.log(path_is);
+    
+    res.sendFile(path_is) // using sendFile over send
+
+})
+
+//static files are that , server does not have to change
+//ex: images, css
+
+-----------------
+what if we add the index.html to the static assets
+or 
+server side rendering
+
+
+if index.html is put in static meaning in the public repo 
+using app.use(express.static('./public))
+even then our website will work
+
+
+Example:
+app.use(express.static('./public'))
+
+// app.get('/',(req,res)=>{
+//     const path_is = path.resolve(__dirname,'./navbar-app/index.html')
+//     res.sendFile(path_is)
+// })
+ will work
+
+
+---------------------
+
+express can be used to 
+
+1. setup api 
+
+in express or in http case, when we talk about api, we mean setting
+up an http interface to interact with our data.
+
+data is sent using json - javascript object notation
+
+in order to send back our response, we are going to use
+res.json() method.
+
+or
+
+2. templates with server side rendering (ssr)
+
+we will setup templates and sendback entire html and css
+and js ourselves
+
+we will use res.render() method
+
+
+-------------------
+
+const express = require('express')
+const app = express()
+
+
+app.get('/',(req,res)=>{
+    res.json([{name:"Afzaal",age:19},{name:"Aditi",age:21}]) //remember {} is an object
+
+})
+
+app.listen(2006,()=>{
+    console.log("server is listening on your bday port");    
+})
+
+
+so the content type is application.json
+we can export data as a module and import it in the app.js
+example:
+
+
+const {products} = require('./data')
+
+
+app.get('/',(req,res)=>{
+    res.json(products) //remember {} is an object
+
+})
+-------------
+
+so, here is a good example:
+
+const express = require('express')
+const app = express()
+
+
+const { products } = require('./data')
+
+
+app.get('/',(req,res)=>{
+    res.send('<h1> Home Page</h1><a href="/api/products">products</a>')
+})
+
+app.get('/api/products',(req,res)=>{
+    const newProducts = products.map((product)=>{
+        const {id,name,image} = product; //This is object destructuring, which extracts specific properties (id, name, image) from the product object.
+        return {id,name,image}
+    })
+
+    res.json(newProducts)
+})
+
+app.listen(2006,()=>{
+    console.log("server is listening on your bday port");    
+})
+
+
+add to this:
+ app.get('/api/products/1',(req,res)=>{
+    const singleProduct = products.find((product)=>
+        product.id === 1
+    )
+
+    res.json(singleProduct)
+}) 
+
+//displaying only the needed product, using the find method 
+//if we use {} with the arrow function, then we need to define
+the return statement also
+//if we do not use {} with arrow, then no need to define return
+
+
+------------------
+
+let's say we have 5 to 8 products, it is possible to define
+the routes for all the 8 products as we did here:
+ app.get('/api/products/1',(req,res)=>{
+    const singleProduct = products.find((product)=>
+        product.id === 1
+    )
+
+    res.json(singleProduct)
+}) ,
+
+
+but what if we have 100 or more products,  I mean what if we
+have more products, what then , will we be defining routes
+for all the products???????
+
+Here express helps, by providing "route parameters"
+
+
+
+example:
+
+app.get('/api/products/:productId',(req,res)=>{
+    console.log(req.params);
+    const {productId} = req.params
+    const singleProduct = products.find((product)=>
+        product.id === Number(productId)
+    )
+    if(!singleProduct){
+        return res.status(404).send("Product does not exist")
+    }
+    
+    res.json(singleProduct)
+})
+    //The output of  the above console.log(req.params) is a object
+    //:productId is a route parameter(a dynamic placeholder)
+    //The value for :productId will be extracted from the request URL.
+    //Example: GET /api/products/1 → productId = "1"
+    //         GET /api/products/42 → productId = "42"
+     //the above line is destructuring : 
+    //explanation: 
+    //console.log(req.params);
+    //output : { productId: '3' }
+    //hence the const {productId} = will become 3 but a string
+    so we mention Number(productId) to change it to no
+
+
+
+----------------------
+
+query string parameters :
+
+req.query gives the query string parameters ,meaning 
+for this:
+http://localhost:2006/api/v1/queryful?name=john&age=19&sex=male&friends=avg
+
+console.log(req.query) will be:
+{ name: 'john', age: '19', sex: 'male', friends: 'avg' }
+
+--------------
+
+let sortedProducts = [...products]
+
+[...products] takes all elements from products 
+and puts them in a new array.
+
+This ensures sortedProducts is a separate array
+ from products, meaning modifying sortedProducts 
+ won’t affect products (but only at the top level).
+
+
+-----------
+
+Good example of using query string parameters :
+
+
+on browser: http://localhost:2006/api/v1/queryful?search=a&limit=4
+app.get('/api/v1/queryful',(req,res)=>{
+    const {search,limit}=req.query
+    let sortedProducts = [...products]
+
+    if(search){
+        sortedProducts = sortedProducts.filter((product)=>{
+            return product.name.startsWith(search)
+        })
+    }
+
+    if(limit){
+        sortedProducts = sortedProducts.slice(0,Number(limit))
+    }
+
+    if(sortedProducts.length<1){
+        res.status(200).send("No products match your search")
+                //return res.status(200).json({success: true,data:[]})
+    }
+    res.status(200).json(sortedProducts)
+})
+also observe in the code, when u do this:
+if(sortedProducts.length<1){
+        res.status(200).send("No products match your search")
+                //return res.status(200).json({success: true,data:[]})
+    }
+    res.status(200).json(sortedProducts)
+}
+here , res.status(200).json(sortedProducts) will not be executed, 
+because it causes an error, as we have already sent using 
+res.status(200).send("No products match your search"), the 
+error will be: 
+Error [ERR_HTTP_HEADERS_SENT]:
+ Cannot set headers after they are sent to the client
+
+
+----------
+
+
+middleware in express js : functions that execute during the 
+request to the server.
+
+// req => middleware => res 
+each middleware has access to request and response object.
+
+middleware is literally everywhere in express
+
+explanation: 
+
+const express = require('express')
+const app = express()
+
+app.get('/',(req,res)=>{
+    const method = req.method
+    const url = req.url
+    const time = new Date().getFullYear()
+    console.log(method,url,time)
+    res.send("Home")
+})
+app.get('/about',(req,res)=>{    
+    res.send("About Pages Baby")
+})
+
+
+app.listen(2006,()=>{
+    console.log("Server is listening on your bday port")
+})
+
+
+See in the url / , we have mentioned some things like
+url, time, method : but what if we want to do the same for
+the other urls like /about, /king etc etc.
+repeating the same code is not ideal. what to do now?
+
+u can do this:
+put that code in a function and use that function.
+Example:
+
+const express = require('express')
+const app = express()
+
+
+const logger = (req,res,next) => {
+    const method = req.method
+    const url = req.url
+    const time = new Date().getFullYear()
+    console.log(method,url,time)
+    next()
+    //next() is a function in Express middleware 
+    // that passes control to the next middleware
+    //  function in the request-response cycle.
+    //If you don’t call next(), 
+    // the request hangs because it never moves forward to
+    //  the next middleware or route handler.
+}
+app.get('/',logger,(req,res)=>{
+    res.send("Home")
+})
+app.get('/about',logger,(req,res)=>{    
+    res.send("About Pages Baby")
+})
+
+
+app.listen(2006,()=>{
+    console.log("Server is listening on your bday port")
+})
+
+-----------
+or put the logger code in a file and import the module
+
+const express = require('express')
+const app = express()
+
+
+const logger = require('./logger')
+
+app.get('/',logger,(req,res)=>{
+    res.send("Home")
+})
+app.get('/about',logger,(req,res)=>{    
+    res.send("About Pages Baby")
+})
+
+this solves somepart, but what about constantly
+everytime calling teh logger in the code.??
+
+solution:
+const logger = require('./logger')
+app.use(logger)
+
+app.get('/',(req,res)=>{
+    res.send("Home")
+})
+app.get('/about',(req,res)=>{    
+    res.send("About Pages Baby")
+})
+
+
+
+-----------
+
+if used like this:
+app.use('/api',logger)
+then the logger will be used as middleware only to those
+routes that have /api at the beginning
+
+and if multiple middleware functions , then
+app.use([logger,authorize])
+
+execution will follow the order in which they are placed,
+meaning logger first then authorize
+
+
+------------
+
+const authorize = (req,res,next)=>{
+    const {user} = req.query
+    if(user){
+        req.user = {name: user, id:Math.floor(Math.random()*100)}
+        next()
+    }else{
+        res.status(401).send("Unauthorized")
+    }
+    
+}
+module.exports = authorize
+
+
+//in any of my routes, I can use the req.user
+app.get('/about',(req,res)=>{ 
+    console.log(req.user);
+    res.send("About Pages Baby")
+})
+
+
+---------
+
+options for middleware : 1)our own 2)express 3)third-party

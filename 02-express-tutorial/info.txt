@@ -1,0 +1,208 @@
+const http = require('http')
+
+const server = http.createServer((req,res)=>{
+    console.log(req)
+    res.writeHead(300,{'content-type':'text/html'})
+    res.write("<h1>home page</h1>")
+    res.end()
+})
+//the method res.end should always be called on each response
+
+//res.writeHead(300, {...}) sets the HTTP status code and headers.
+
+//The res.writeHead() method is used in a Node.js HTTP server
+//  to set the status code and headers for the response before 
+// sending any data.
+
+server.listen(2121)
+
+
+http response status codes
+
+client error responses : 400 -
+
+
+mime types
+
+
+
+//    console.log(req.method)
+//     console.log(req.url)
+
+
+
+----------------
+
+
+
+const http = require('http')
+
+const server = http.createServer((req,res)=>{
+    //console.log(req.url)
+    const url = req.url;
+    if(url === '/'){
+        
+    res.writeHead(200,{'content-type':'text/html'})
+    res.write("<h1>home page</h1>")
+    res.end()
+    }
+    else if(url === '/kingdomoftheplanetoftheapes' || url === '/kingdom') {
+    res.writeHead(200,{'content-type':'text/html'})
+    res.write("<h1>Welcome to the free movie voucher page</h1>")
+    res.end()        
+    }
+    else {
+    res.writeHead(404,{'content-type':'text/html'})
+    res.write("<h1>CLIENT ERROR !! PAGE NOT FOUND</h1>")
+    res.end()           
+    }
+})
+server.listen(2121)
+
+//we can also add the status text
+
+----------
+
+
+const http = require('http')
+const {readFileSync} = require('fs')
+
+
+const homePage = readFileSync('./index.html')
+
+const server = http.createServer((req,res)=>{
+    //console.log(req.url)
+    const url = req.url;
+    if(url === '/'){
+        
+    res.writeHead(200,{'content-type':'text/html'})
+    res.write(homePage)
+    res.end()
+    }
+    else if(url === '/kingdomoftheplanetoftheapes' || url === '/kingdom') {
+    res.writeHead(200,{'content-type':'text/html'})
+    res.write("<h1>Welcome to the free movie voucher page</h1>")
+    res.end()        
+    }
+    else {
+    res.writeHead(404,{'content-type':'text/html'})
+    res.write("<h1>CLIENT ERROR !! PAGE NOT FOUND</h1>")
+    res.end()           
+    }
+})
+server.listen(2121)
+
+//we can also add the status text
+
+
+
+----------
+
+points regarding html :
+
+The <nav> element defines a navigation bar.
+
+A <div> (short for "division") is an HTML element
+ used as a container to group other elements together. 
+ It doesn’t have any specific meaning but helps structure
+  and style content using CSS and JavaScript.
+
+
+
+  2. The Icon Inside the Button 
+  (<i class="fas fa-bars"></i>)
+The <i> element has a class fas fa-bars, 
+which is a Font Awesome icon.
+The "fa-bars" icon represents three horizontal lines (☰), 
+commonly known as a hamburger menu icon.
+This icon is typically used for toggling navigation menus.
+
+
+
+
+
+
+const navToggle = document.querySelector('.nav-toggle')
+const links = document.querySelector('.links')
+
+
+navToggle.addEventListener('click', function () {
+  links.classList.toggle('show-links')
+})
+
+classList is a built-in property that allows us to add,
+ remove, or toggle CSS classes on an element.
+
+toggle('show-links') does two things:
+If .show-links is NOT present → It adds the class .show-links.
+If .show-links is already present → It removes the class .show-links.
+
+
+----------------
+
+
+this is the app.js for the navbar-app :
+const http = require('http')
+const {readFileSync} = require('fs')
+
+
+const homePage = readFileSync('./navbar-app/index.html')
+const homeStyles = readFileSync('./navbar-app/styles.css')
+const homeImage = readFileSync('./navbar-app/logo.svg')
+const homeLogic = readFileSync('./navbar-app/browser-app.js')
+
+const server = http.createServer((req,res)=>{
+    //console.log(req.url)
+    const url = req.url;
+    console.log(url);
+    
+    if(url === '/'){
+        
+    res.writeHead(200,{'content-type':'text/html'})
+    res.write(homePage)
+    res.end()
+    }
+    else if(url === '/styles.css') {
+    res.writeHead(200,{'content-type':'text/css'})
+    res.write(homeStyles)
+    res.end()        
+    }
+    else if(url === '/logo.svg') {
+    res.writeHead(200,{'content-type': 'image/svg+xml'})
+    res.write(homeImage)
+    res.end()        
+    }
+    else if(url === '/browser-app.js') {
+    res.writeHead(200,{'content-type':'text/javascript'})
+    res.write(homeLogic)
+    res.end()        
+    }
+    else {
+    res.writeHead(404,{'content-type':'text/html'})
+    res.write("<h1>CLIENT ERROR !! PAGE NOT FOUND</h1>")
+    res.end()           
+    }
+})
+server.listen(2121)
+
+u need to understand that, here we are also mentioning the 
+paths /
+/styles.css
+/logo.svg
+/browser-app.js, this is because :
+
+ the built-in http module in Node.js does 
+ not automatically serve static files 
+ (like CSS, images, or JavaScript). You need to manually
+  handle requests for these files, which is why you check
+   the req.url and serve the appropriate file.
+
+
+
+--------
+
+
+
+
+
+
